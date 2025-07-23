@@ -1,0 +1,12 @@
+import React from 'react';
+import './Header.css'; // Keep if you have styles for the title or header
+
+const Header = () => {
+  return (
+    <header className="header">
+      <h1 className="title">Real-Time Chat</h1>
+    </header>
+  );
+};
+
+export default Header;
