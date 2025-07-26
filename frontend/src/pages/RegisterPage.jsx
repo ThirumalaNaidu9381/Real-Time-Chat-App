@@ -1,4 +1,3 @@
-// src/pages/RegisterPage.jsx
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
@@ -7,6 +6,7 @@ import { useNavigate, Link } from 'react-router-dom';
 const RegisterPage = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -16,22 +16,26 @@ const RegisterPage = () => {
     setError('');
 
     try {
-      const res = await axios.post(`${import.meta.env.VITE_SERVER_URL}/api/auth/register`, {
+      // Register user
+      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/auth/register`, {
         username,
         password,
       });
 
-      const userData = res.data;
-
-      // Make sure data contains _id and username
-      login({
-        _id: userData._id,
-        username: userData.username,
+      // Auto-login user after registration
+      const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/auth/login`, {
+        username,
+        password,
       });
 
-      navigate('/home'); // Redirect to chat/home page after successful register
+      login({
+        _id: res.data.userId,
+        username: res.data.username,
+      });
+
+      navigate('/home');
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed');
+      setError(err.response?.data?.message || '❌ Registration failed');
     }
   };
 

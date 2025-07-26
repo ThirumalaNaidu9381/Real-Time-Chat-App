@@ -6,9 +6,12 @@ export function socketHandler(io, socket) {
 
   socket.on('joinRoom', ({ username, room }) => {
     socket.join(room);
+    socket.username = username;
+    socket.room = room;
+
     console.log(`📥 ${username} joined room: ${room}`);
 
-    // Broadcast to others
+    // Notify others in the room
     socket.to(room).emit('receiveMessage', {
       username: 'System',
       text: `${username} has joined the room.`,
@@ -17,22 +20,32 @@ export function socketHandler(io, socket) {
   });
 
   socket.on('sendMessage', async ({ username, text, room }) => {
-    const newMessage = new Message({ senderName: username, content: text, room });
-    await newMessage.save();
+    if (!text || !username || !room) return;
 
-    io.to(room).emit('receiveMessage', {
-      username,
-      text,
-      createdAt: newMessage.createdAt,
-    });
+    try {
+      const newMessage = new Message({ senderName: username, content: text, room });
+      await newMessage.save();
+
+      io.to(room).emit('receiveMessage', {
+        username,
+        text,
+        createdAt: newMessage.createdAt,
+      });
+    } catch (error) {
+      console.error('💥 Failed to save message:', error.message);
+    }
   });
 
   socket.on('typing', ({ room, username }) => {
-    socket.to(room).emit('typing', username);
+    if (room && username) {
+      socket.to(room).emit('typing', username);
+    }
   });
 
   socket.on('stopTyping', ({ room }) => {
-    socket.to(room).emit('stopTyping');
+    if (room) {
+      socket.to(room).emit('stopTyping');
+    }
   });
 
   socket.on('disconnect', () => {

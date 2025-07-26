@@ -1,16 +1,19 @@
 import React from 'react';
 import './Sidebar.css';
 
-function Sidebar() {
+const Sidebar = ({ contacts = [] }) => {
   return (
     <div className="sidebar">
       <h3>Contacts</h3>
       <ul>
-        <li>User 1</li>
-        <li>User 2</li>
+        {contacts.length > 0 ? (
+          contacts.map((user, index) => <li key={index}>{user}</li>)
+        ) : (
+          <li>No contacts available</li>
+        )}
       </ul>
     </div>
   );
-}
+};
 
 export default Sidebar;

@@ -14,38 +14,19 @@ const MessageInput = ({ onSend, onTyping }) => {
 
   const handleChange = (e) => {
     setText(e.target.value);
-    onTyping(); // trigger typing on every change
+    if (onTyping) onTyping();
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      style={{ display: "flex", marginTop: "10px", gap: "10px" }}
-    >
+    <form onSubmit={handleSubmit} className="message-form">
       <input
         type="text"
         value={text}
-        placeholder="Type a message..."
         onChange={handleChange}
-        style={{
-          flex: 1,
-          padding: "10px",
-          borderRadius: "20px",
-          border: "1px solid #ccc",
-        }}
+        placeholder="Type a message..."
+        className="message-input"
       />
-      <button
-        type="submit"
-        style={{
-          padding: "10px 20px",
-          borderRadius: "20px",
-          background: "#4CAF50",
-          color: "white",
-          border: "none",
-        }}
-      >
-        Send
-      </button>
+      <button type="submit" className="send-button">Send</button>
     </form>
   );
 };

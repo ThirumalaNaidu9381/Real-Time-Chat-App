@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import io from 'socket.io-client';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import ChatRoom from '../components/ChatRoom';
-
-const socket = io(import.meta.env.VITE_SERVER_URL); // Uses env URL
+import socket from '../services/socket';
 
 const Home = () => {
   const [room, setRoom] = useState('');
@@ -14,7 +12,11 @@ const Home = () => {
 
   useEffect(() => {
     if (!user) {
-      navigate('/login'); // redirect if not authenticated
+      navigate('/login');
+    } else {
+      if (!socket.connected) {
+        socket.connect();
+      }
     }
   }, [user, navigate]);
 
@@ -47,7 +49,7 @@ const Home = () => {
           <button onClick={handleJoin}>Join</button>
         </div>
       ) : (
-        <ChatRoom socket={socket} username={user.username} room={room} />
+        <ChatRoom room={room} />
       )}
     </div>
   );

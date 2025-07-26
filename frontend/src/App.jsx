@@ -10,9 +10,16 @@ const App = () => {
 
   return (
     <Routes>
+      {/* If user is logged in, redirect to /home; else show login */}
       <Route path="/" element={user ? <Navigate to="/home" replace /> : <LoginPage />} />
+      
+      {/* If already logged in, redirect away from register */}
       <Route path="/register" element={user ? <Navigate to="/home" replace /> : <RegisterPage />} />
+
+      {/* Protected route: Only accessible if user is logged in */}
       <Route path="/home" element={user ? <Home /> : <Navigate to="/" replace />} />
+
+      {/* Catch-all: Redirect unknown paths */}
       <Route path="*" element={<Navigate to={user ? "/home" : "/"} replace />} />
     </Routes>
   );

@@ -1,7 +1,7 @@
-// src/pages/LoginPage.jsx
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom'; // ✅ Added Link
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import socket from '../services/socket';
 
 const LoginPage = () => {
   const { login } = useAuth();
@@ -19,7 +19,7 @@ const LoginPage = () => {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -31,10 +31,13 @@ const LoginPage = () => {
         throw new Error(data.message || 'Login failed');
       }
 
-      login({
-        _id: data._id,
+      const userData = {
+        _id: data.userId,
         username: data.username,
-      });
+      };
+
+      login(userData);
+      socket.connect(); // Ensure global socket is connected
 
       navigate('/home');
     } catch (err) {
@@ -43,7 +46,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div style={{ padding: '2rem' }}>
+    <div className="auth-container">
       <h2>Login</h2>
       <form onSubmit={handleSubmit}>
         <input
@@ -66,9 +69,8 @@ const LoginPage = () => {
         {error && <p style={{ color: 'red' }}>{error}</p>}
       </form>
 
-      {/* ✅ Register link added here */}
       <p>
-        Don't have an account? <Link to="/register">Register</Link>
+        Don&apos;t have an account? <Link to="/register">Register</Link>
       </p>
     </div>
   );

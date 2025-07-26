@@ -1,3 +1,4 @@
+// frontend/components/ChatRoom.jsx
 import { useEffect, useState, useRef } from "react";
 import socket from "../services/socket";
 import { useAuth } from "../context/AuthContext";
@@ -12,40 +13,49 @@ const ChatRoom = ({ room }) => {
 
   const [messages, setMessages] = useState([]);
   const [users, setUsers] = useState([]);
-  const [typingUser, setTypingUser] = useState("");
+  const [typingUsers, setTypingUsers] = useState([]);
 
   const bottomRef = useRef(null);
 
   useEffect(() => {
     if (!username || !room) return;
 
+    // Join room
     socket.emit("joinRoom", { username, room });
 
-    socket.on("chatHistory", (msgs) => {
-      setMessages(msgs);
-    });
+    // Message handlers
+    const handleHistory = (msgs) => setMessages(msgs);
+    const handleMessage = (msg) => setMessages((prev) => [...prev, msg]);
+    const handleOnlineUsers = (userList) => setUsers(userList);
 
-    socket.on("message", (msg) => {
-      setMessages((prev) => [...prev, msg]);
-    });
-
-    socket.on("onlineUsers", (userList) => {
-      setUsers(userList);
-    });
-
-    socket.on("typing", (user) => {
+    // Typing handlers
+    const handleTyping = (user) => {
       if (user !== username) {
-        setTypingUser(user);
-        setTimeout(() => setTypingUser(""), 2000);
+        setTypingUsers((prev) =>
+          prev.includes(user) ? prev : [...prev, user]
+        );
       }
-    });
+    };
 
+    const handleStopTyping = (user) => {
+      setTypingUsers((prev) => prev.filter((u) => u !== user));
+    };
+
+    // Listen
+    socket.on("chat-history", handleHistory);
+    socket.on("message", handleMessage);
+    socket.on("onlineUsers", handleOnlineUsers);
+    socket.on("typing", handleTyping);
+    socket.on("stopTyping", handleStopTyping);
+
+    // Cleanup
     return () => {
-      socket.off("chatHistory");
-      socket.off("message");
-      socket.off("onlineUsers");
-      socket.off("typing");
       socket.emit("leaveRoom", { username, room });
+      socket.off("chat-history", handleHistory);
+      socket.off("message", handleMessage);
+      socket.off("onlineUsers", handleOnlineUsers);
+      socket.off("typing", handleTyping);
+      socket.off("stopTyping", handleStopTyping);
     };
   }, [room, username]);
 
@@ -56,6 +66,7 @@ const ChatRoom = ({ room }) => {
   const sendMessage = (text) => {
     if (text.trim()) {
       socket.emit("chatMessage", { username, text, room });
+      socket.emit("stopTyping", { username, room }); // Stop typing when message sent
     }
   };
 
@@ -63,7 +74,6 @@ const ChatRoom = ({ room }) => {
     socket.emit("typing", { username, room });
   };
 
-  // 🛡️ Loading fallback
   if (!username || !room) {
     return <div>Loading chat...</div>;
   }
@@ -88,7 +98,7 @@ const ChatRoom = ({ room }) => {
         {messages.map((msg, i) => (
           <MessageItem key={i} message={msg} currentUser={username} />
         ))}
-        {typingUser && <TypingIndicator username={typingUser} />}
+        <TypingIndicator typingUsers={typingUsers} currentUser={username} />
         <div ref={bottomRef}></div>
       </div>
       <MessageInput onSend={sendMessage} onTyping={sendTyping} />

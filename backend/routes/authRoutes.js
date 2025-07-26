@@ -1,4 +1,3 @@
-// routes/authRoutes.js
 import express from 'express';
 import { registerUser, loginUser } from '../controllers/authController.js';
 
@@ -13,5 +12,8 @@ router.post('/register', registerUser);
 // @desc    Authenticate user & get user info
 // @access  Public
 router.post('/login', loginUser);
+
+// Future: Add protected routes here using authMiddleware
+// router.get('/profile', authMiddleware, getUserProfile);
 
 export default router;

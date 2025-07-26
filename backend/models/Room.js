@@ -1,11 +1,19 @@
 import mongoose from 'mongoose';
 
-const roomSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    unique: true
+const roomSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+    },
+  },
+  {
+    timestamps: true, // Automatically adds createdAt and updatedAt
   }
-}, { timestamps: true });
+);
 
-export default mongoose.model('Room', roomSchema);
+const Room = mongoose.model('Room', roomSchema);
+
+export default Room;

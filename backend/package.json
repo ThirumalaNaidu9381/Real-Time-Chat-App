@@ -1,6 +1,7 @@
 {
   "name": "realtime-chat-app",
   "version": "1.0.0",
+  "description": "Backend for a real-time chat application using Node.js, Express, Socket.IO, and MongoDB.",
   "type": "module",
   "main": "server.js",
   "scripts": {
@@ -9,7 +10,6 @@
   },
   "dependencies": {
     "bcrypt": "^5.1.0",
-    "bcryptjs": "^3.0.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",

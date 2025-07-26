@@ -13,11 +13,14 @@ const messageSchema = new mongoose.Schema(
       trim: true,
     },
     room: {
-      type: String, // or use ObjectId if you are referencing a Room model
+      type: String, // Could be ObjectId if referencing a Room collection
       required: true,
+      trim: true,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true, // Adds createdAt and updatedAt fields automatically
+  }
 );
 
 const Message = mongoose.model('Message', messageSchema);
